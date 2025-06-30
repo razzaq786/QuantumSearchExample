@@ -1,0 +1,80 @@
+// Hybrid Quantum Search: Simulated Oracle to Search Patient by ID
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Quantum.Simulation.Core;
+using Microsoft.Quantum.Simulation.Simulators;
+using QuantumSearch;
+
+namespace QuantumFunctionApp
+{
+    public static class QuantumFunction
+    {
+        [FunctionName("QuantumSearchFunction")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            string connectionString = Environment.GetEnvironmentVariable("SqlConnectionString");
+
+            // Step 1: Parse user input for patient ID
+            string idParam = req.Query["targetID"];
+            if (!int.TryParse(idParam, out int targetPatientId))
+            {
+                return new BadRequestObjectResult("Invalid or missing 'targetID' parameter.");
+            }
+
+            // Step 2: Load ALL patient records into memory
+            var patientRecords = new List<(int PatientId, string Diagnosis, string Doctor, DateTime VisitDate)>();
+
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SqlCommand("SELECT patient_id, diagnosis, doctor, visit_date FROM Patients", connection);
+                var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    int patientId = reader.GetInt32(0);
+                    string diagnosis = reader.GetString(1);
+                    string doctor = reader.GetString(2);
+                    DateTime visit = reader.GetDateTime(3);
+
+                    patientRecords.Add((patientId, diagnosis, doctor, visit));
+                }
+            }
+
+            if (patientRecords.Count == 0)
+            {
+                return new OkObjectResult("No records available in the database.");
+            }
+
+            // Step 3: Simulate Oracle Evaluation Function (lazily evaluated inside Grover)
+            int n = patientRecords.Count;
+            Func<int, bool> oracle = (index) => patientRecords[index].PatientId == targetPatientId;
+
+            // Step 4: Run simulated Grover search to find index where oracle is true
+            int foundIndex;
+            using (var sim = new QuantumSimulator())
+            {
+                foundIndex = await GroverSimulatedSearch.Run(sim, n, oracle);
+                log.LogInformation($"Grover matched index: {foundIndex}");
+            }
+
+            if (foundIndex < 0 || foundIndex >= n)
+            {
+                return new OkObjectResult("Patient ID not found via Grover search.");
+            }
+
+            var match = patientRecords[foundIndex];
+            return new OkObjectResult($"Patient Record Found:\nPatient ID: {match.PatientId}\nDiagnosis: {match.Diagnosis}\nDoctor: {match.Doctor}\nVisit Date: {match.VisitDate:yyyy-MM-dd}");
+        }
+    }
+}
