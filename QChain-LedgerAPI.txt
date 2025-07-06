@@ -1,0 +1,53 @@
+const express = require('express');
+const Web3 = require('web3');
+const app = express();
+const port = 3000;
+
+// Load ABI and contract address
+const contractData = require('./build/contracts/DataLogic.json'); // Adjust path to your ABI file
+
+const web3 = new Web3('http://127.0.0.1:7545'); // Ganache default
+
+let dataLogic;
+let networkId;
+
+// Initialize contract
+async function initBlockchain() {
+  networkId = await web3.eth.net.getId();
+  const deployedNetwork = contractData.networks[networkId];
+
+  if (!deployedNetwork) {
+    throw new Error('Contract not deployed on this network.');
+  }
+
+  dataLogic = new web3.eth.Contract(contractData.abi, deployedNetwork.address);
+}
+
+app.get('/api/users', async (req, res) => {
+  try {
+    if (!dataLogic) {
+      await initBlockchain();
+    }
+
+    const count = await dataLogic.methods.count().call();
+    const users = [];
+
+    for (let i = 1; i <= count; i++) {
+      const user = await dataLogic.methods.UserList(i).call();
+      users.push(user);
+    }
+
+    res.json({
+      total: count,
+      users: users
+    });
+
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
