@@ -1,0 +1,136 @@
+// File: QuantumSearchFunction.cs
+using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Globalization;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Quantum.Simulation.Simulators; // QuantumSimulator
+using QuantumSearch; // Your Q# operations namespace
+
+namespace QuantumFunctionApp
+{
+    public static class QuantumSearchFunction
+    {
+        [FunctionName("QuantumSearchFunction")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            ILogger log)
+        {
+            // Read connection string from settings
+            string connectionString = Environment.GetEnvironmentVariable("SqlConnectionString");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                log.LogError("SqlConnectionString not set in environment.");
+                return new StatusCodeResult(500);
+            }
+
+            // Parse input parameters (all optional except we require at least one filter)
+            string idParam = req.Query["targetID"];
+            string diagnosisParam = req.Query["diagnosis"];
+            string doctorParam = req.Query["doctor"];
+            string medParam = req.Query["medication"];
+            string fromDateParam = req.Query["fromDate"];
+            string toDateParam = req.Query["toDate"];
+
+            // Normalize inputs
+            bool hasAnyFilter = !(string.IsNullOrWhiteSpace(idParam) && string.IsNullOrWhiteSpace(diagnosisParam) &&
+                                  string.IsNullOrWhiteSpace(doctorParam) && string.IsNullOrWhiteSpace(medParam) &&
+                                  string.IsNullOrWhiteSpace(fromDateParam) && string.IsNullOrWhiteSpace(toDateParam));
+
+            if (!hasAnyFilter)
+            {
+                return new BadRequestObjectResult("Specify at least one filter: targetID, diagnosis, doctor, medication, fromDate, toDate.");
+            }
+
+            int? targetPatientId = null;
+            if (!string.IsNullOrWhiteSpace(idParam) && int.TryParse(idParam, out int parsedId))
+            {
+                targetPatientId = parsedId;
+            }
+
+            DateTime? fromDate = null, toDate = null;
+            if (!string.IsNullOrWhiteSpace(fromDateParam) && DateTime.TryParse(fromDateParam, out var fd)) fromDate = fd;
+            if (!string.IsNullOrWhiteSpace(toDateParam) && DateTime.TryParse(toDateParam, out var td)) toDate = td;
+
+            // Step 1: Load ALL patient records into memory (simulation only)
+            var patientRecords = new List<(int PatientId, string Diagnosis, string Doctor, DateTime VisitDate, string Medication)>();
+
+            try
+            {
+                using var connection = new SqlConnection(connectionString);
+                await connection.OpenAsync();
+
+                var cmdText = "SELECT patient_id, diagnosis, doctor, visit_date, medication FROM Patients";
+                using var command = new SqlCommand(cmdText, connection);
+                using var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    int pid = reader.IsDBNull(0) ? -1 : reader.GetInt32(0);
+                    string diag = reader.IsDBNull(1) ? string.Empty : reader.GetString(1);
+                    string doc = reader.IsDBNull(2) ? string.Empty : reader.GetString(2);
+                    DateTime visit = reader.IsDBNull(3) ? DateTime.MinValue : reader.GetDateTime(3);
+                    string med = reader.FieldCount > 4 && !reader.IsDBNull(4) ? reader.GetString(4) : string.Empty;
+
+                    patientRecords.Add((pid, diag, doc, visit, med));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Failed to load patient records from database.");
+                return new StatusCodeResult(500);
+            }
+
+            int n = patientRecords.Count;
+            if (n == 0)
+            {
+                return new OkObjectResult("No records found in database.");
+            }
+
+            // Step 2: Build a multi-condition oracle predicate (NO classical pre-search)
+            // The oracle returns true for an index if the record at that index satisfies ALL specified filters.
+            Func<int, bool> oracle = (index) =>
+            {
+                var rec = patientRecords[index];
+
+                if (targetPatientId.HasValue && rec.PatientId != targetPatientId.Value) return false;
+                if (!string.IsNullOrWhiteSpace(diagnosisParam) && !rec.Diagnosis.Equals(diagnosisParam, StringComparison.OrdinalIgnoreCase)) return false;
+                if (!string.IsNullOrWhiteSpace(doctorParam) && !rec.Doctor.Equals(doctorParam, StringComparison.OrdinalIgnoreCase)) return false;
+                if (!string.IsNullOrWhiteSpace(medParam) && !rec.Medication.Contains(medParam, StringComparison.OrdinalIgnoreCase)) return false;
+                if (fromDate.HasValue && rec.VisitDate < fromDate.Value) return false;
+                if (toDate.HasValue && rec.VisitDate > toDate.Value) return false;
+
+                return true;
+            };
+
+            // Step 3: Run Grover simulated search WITHOUT doing classical lookup beforehand
+            int foundIndex;
+            try
+            {
+                using var sim = new QuantumSimulator();
+                // GroverSimulatedSearch.Run(simulator, n, oracle) : we assume this Q# helper simulates amplitude amplification,
+                // calling the provided oracle predicate when evaluating the phase flip during simulation.
+                foundIndex = await GroverSimulatedSearch.Run(sim, n, oracle);
+                log.LogInformation($"GroverSimulatedSearch returned index: {foundIndex}");
+            }
+            catch (Exception ex)
+            {
+                log.LogError(ex, "Grover simulation failed.");
+                return new StatusCodeResult(500);
+            }
+
+            if (foundIndex < 0 || foundIndex >= n)
+            {
+                return new OkObjectResult("No matching records found by Grover search.");
+            }
+
+            var match = patientRecords[foundIndex];
+            string result = $"Patient Record Found:\nPatient ID: {match.PatientId}\nDiagnosis: {match.Diagnosis}\nDoctor: {match.Doctor}\nMedication: {match.Medication}\nVisit Date: {match.VisitDate:yyyy-MM-dd}";
+            return new OkObjectResult(result);
+        }
+    }
+}
