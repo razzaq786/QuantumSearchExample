@@ -1,0 +1,157 @@
+[
+  {
+    "k": 1,
+    "N": 256,
+    "n_index_qubits": 8,
+    "field_widths": [
+      8
+    ],
+    "ancilla_qubits": 2,
+    "total_qubits": 10,
+    "oracle_calls_theoretical": 12,
+    "gates_per_single_oracle_call": {
+      "breakdown": {
+        "X": 32,
+        "MCX8": 2,
+        "CNOT": 1
+      },
+      "total": 35,
+      "depth": 6
+    },
+    "gates_per_single_diffusion": {
+      "breakdown": {
+        "H": 18,
+        "X": 16,
+        "MCX7": 1
+      },
+      "total": 35,
+      "depth": 7
+    },
+    "full_circuit_totals": {
+      "total_gate_count": 850,
+      "total_depth": 157
+    },
+    "mean_success_prob": 0.9999470421032336,
+    "empirical_success_rate": 1.0,
+    "trials": 30
+  },
+  {
+    "k": 2,
+    "N": 256,
+    "n_index_qubits": 8,
+    "field_widths": [
+      4,
+      4
+    ],
+    "ancilla_qubits": 3,
+    "total_qubits": 11,
+    "oracle_calls_theoretical": 12,
+    "gates_per_single_oracle_call": {
+      "breakdown": {
+        "X": 32,
+        "MCX4": 4,
+        "TOFFOLI": 1
+      },
+      "total": 37,
+      "depth": 6
+    },
+    "gates_per_single_diffusion": {
+      "breakdown": {
+        "H": 18,
+        "X": 16,
+        "MCX7": 1
+      },
+      "total": 35,
+      "depth": 7
+    },
+    "full_circuit_totals": {
+      "total_gate_count": 874,
+      "total_depth": 157
+    },
+    "mean_success_prob": 0.9999470421032336,
+    "empirical_success_rate": 1.0,
+    "trials": 30
+  },
+  {
+    "k": 4,
+    "N": 256,
+    "n_index_qubits": 8,
+    "field_widths": [
+      2,
+      2,
+      2,
+      2
+    ],
+    "ancilla_qubits": 5,
+    "total_qubits": 13,
+    "oracle_calls_theoretical": 12,
+    "gates_per_single_oracle_call": {
+      "breakdown": {
+        "X": 32,
+        "TOFFOLI": 8,
+        "MCX4": 1
+      },
+      "total": 41,
+      "depth": 6
+    },
+    "gates_per_single_diffusion": {
+      "breakdown": {
+        "H": 18,
+        "X": 16,
+        "MCX7": 1
+      },
+      "total": 35,
+      "depth": 7
+    },
+    "full_circuit_totals": {
+      "total_gate_count": 922,
+      "total_depth": 157
+    },
+    "mean_success_prob": 0.9999470421032336,
+    "empirical_success_rate": 1.0,
+    "trials": 30
+  },
+  {
+    "k": 8,
+    "N": 256,
+    "n_index_qubits": 8,
+    "field_widths": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "ancilla_qubits": 9,
+    "total_qubits": 17,
+    "oracle_calls_theoretical": 12,
+    "gates_per_single_oracle_call": {
+      "breakdown": {
+        "X": 32,
+        "CNOT": 16,
+        "MCX8": 1
+      },
+      "total": 49,
+      "depth": 6
+    },
+    "gates_per_single_diffusion": {
+      "breakdown": {
+        "H": 18,
+        "X": 16,
+        "MCX7": 1
+      },
+      "total": 35,
+      "depth": 7
+    },
+    "full_circuit_totals": {
+      "total_gate_count": 1018,
+      "total_depth": 157
+    },
+    "mean_success_prob": 0.9999470421032336,
+    "empirical_success_rate": 1.0,
+    "trials": 30
+  }
+]

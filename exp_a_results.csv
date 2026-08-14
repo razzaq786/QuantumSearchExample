@@ -1,0 +1,5 @@
+k,N,n_index_qubits,field_widths,ancilla_qubits,total_qubits,oracle_calls_theoretical,single_oracle_gate_count,single_oracle_depth,single_oracle_gate_breakdown,single_diffusion_gate_count,single_diffusion_depth,full_circuit_gate_count,full_circuit_depth,mean_success_prob,empirical_success_rate,trials
+1,256,8,[8],2,10,12,35,6,"{'X': 32, 'MCX8': 2, 'CNOT': 1}",35,7,850,157,0.9999470421032336,1.0,30
+2,256,8,"[4, 4]",3,11,12,37,6,"{'X': 32, 'MCX4': 4, 'TOFFOLI': 1}",35,7,874,157,0.9999470421032336,1.0,30
+4,256,8,"[2, 2, 2, 2]",5,13,12,41,6,"{'X': 32, 'TOFFOLI': 8, 'MCX4': 1}",35,7,922,157,0.9999470421032336,1.0,30
+8,256,8,"[1, 1, 1, 1, 1, 1, 1, 1]",9,17,12,49,6,"{'X': 32, 'CNOT': 16, 'MCX8': 1}",35,7,1018,157,0.9999470421032336,1.0,30

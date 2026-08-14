@@ -1,0 +1,102 @@
+[
+  {
+    "N": 64,
+    "linear_scan_ms_mean": 0.0008906666664643126,
+    "linear_scan_ms_std": 0.0004909510047724876,
+    "hash_lookup_ms_mean": 0.00013976666650705738,
+    "hash_lookup_ms_std": 0.00013979859063209822,
+    "binary_search_ms_mean": 0.0005957000008531091,
+    "binary_search_ms_std": 0.0013084974645364348,
+    "grover_oracle_calls_theoretical": 6
+  },
+  {
+    "N": 128,
+    "linear_scan_ms_mean": 0.001766499999670638,
+    "linear_scan_ms_std": 0.0007841172009852131,
+    "hash_lookup_ms_mean": 9.749999965909713e-05,
+    "hash_lookup_ms_std": 3.021120062601759e-05,
+    "binary_search_ms_mean": 0.00025659999967804953,
+    "binary_search_ms_std": 0.00015221401668482812,
+    "grover_oracle_calls_theoretical": 8
+  },
+  {
+    "N": 256,
+    "linear_scan_ms_mean": 0.004831899999639215,
+    "linear_scan_ms_std": 0.009216825058105354,
+    "hash_lookup_ms_mean": 0.00010609999681795064,
+    "hash_lookup_ms_std": 4.952329320343975e-05,
+    "binary_search_ms_mean": 0.0009865000009767755,
+    "binary_search_ms_std": 0.0037903767782666905,
+    "grover_oracle_calls_theoretical": 12
+  },
+  {
+    "N": 512,
+    "linear_scan_ms_mean": 0.006886933331410698,
+    "linear_scan_ms_std": 0.004337797175809918,
+    "hash_lookup_ms_mean": 0.00011709999985972293,
+    "hash_lookup_ms_std": 3.258358347254233e-05,
+    "binary_search_ms_mean": 0.00032193333557491616,
+    "binary_search_ms_std": 7.771483431534847e-05,
+    "grover_oracle_calls_theoretical": 17
+  },
+  {
+    "N": 1024,
+    "linear_scan_ms_mean": 0.01376603333511639,
+    "linear_scan_ms_std": 0.011213855993928209,
+    "hash_lookup_ms_mean": 0.00012650000134802516,
+    "hash_lookup_ms_std": 4.273776544848629e-05,
+    "binary_search_ms_mean": 0.0003542999995905423,
+    "binary_search_ms_std": 0.00010116921466103409,
+    "grover_oracle_calls_theoretical": 25
+  },
+  {
+    "N": 4096,
+    "linear_scan_ms_mean": 0.06931986666719088,
+    "linear_scan_ms_std": 0.040244205146849066,
+    "hash_lookup_ms_mean": 0.00014886666643102822,
+    "hash_lookup_ms_std": 7.523905502713704e-05,
+    "binary_search_ms_mean": 0.0004482666663344996,
+    "binary_search_ms_std": 0.0001414211041027182,
+    "grover_oracle_calls_theoretical": 50
+  },
+  {
+    "N": 16384,
+    "linear_scan_ms_mean": 0.2910578333332599,
+    "linear_scan_ms_std": 0.1332084820239743,
+    "hash_lookup_ms_mean": 0.00033340000034816814,
+    "hash_lookup_ms_std": 0.00013982002625031865,
+    "binary_search_ms_mean": 0.0006792333342294418,
+    "binary_search_ms_std": 0.0002812928109130338,
+    "grover_oracle_calls_theoretical": 100
+  },
+  {
+    "N": 65536,
+    "linear_scan_ms_mean": 1.080122999999844,
+    "linear_scan_ms_std": 0.7670857284922806,
+    "hash_lookup_ms_mean": 0.0011015333332882922,
+    "hash_lookup_ms_std": 0.0003194671335198713,
+    "binary_search_ms_mean": 0.0016964000001469988,
+    "binary_search_ms_std": 0.0007940633725807834,
+    "grover_oracle_calls_theoretical": 201
+  },
+  {
+    "N": 262144,
+    "linear_scan_ms_mean": 4.007745633335939,
+    "linear_scan_ms_std": 2.4532405769119956,
+    "hash_lookup_ms_mean": 0.0036108666662926225,
+    "hash_lookup_ms_std": 0.008618374011093586,
+    "binary_search_ms_mean": 0.0033453999999248176,
+    "binary_search_ms_std": 0.0010838727961590931,
+    "grover_oracle_calls_theoretical": 402
+  },
+  {
+    "N": 1048576,
+    "linear_scan_ms_mean": 18.769518433334536,
+    "linear_scan_ms_std": 10.444039568296873,
+    "hash_lookup_ms_mean": 0.005059800001087448,
+    "hash_lookup_ms_std": 0.009096776310544664,
+    "binary_search_ms_mean": 0.007744200000085281,
+    "binary_search_ms_std": 0.005305810981235209,
+    "grover_oracle_calls_theoretical": 804
+  }
+]
